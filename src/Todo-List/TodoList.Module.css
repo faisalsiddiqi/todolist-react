@@ -5,6 +5,11 @@ body{
   padding: 20px;
 }
 
+li{
+  list-style-type: none;
+  font-size: 18px;
+  font-weight:500;
+}
 
 
 

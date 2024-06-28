@@ -87,18 +87,12 @@ function TodoList() {
               <a>⬆</a>
             </button>
             <button
-              className="border no-round"
+              className="border right-round"
               onClick={() => PriorityDown(index)}
             >
               <a>⬇</a>
             </button>
-            <button className="border right-round">
-              C
-              <menu className="no-wrap">
-                <a>Work</a>
-                <a>Personal</a>
-              </menu>
-            </button>
+           
           </nav>
         </a>
       </div>
