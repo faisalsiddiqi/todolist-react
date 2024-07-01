@@ -4,138 +4,172 @@ import "material-dynamic-colors";
 import "./TodoList.Module.css";
 
 function TodoList() {
-  const [TaskList, setTaskList] = useState([]);
+  const [taskList, setTaskList] = useState([]);
 
-  const [NewTask, setNewTask] = useState("");
+  const [newTask, setNewTask] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+  const [filteredTaskList, setFilteredTaskList] = useState(taskList);
+  const [filterCategory, setFilterCategory] = useState("");
 
-  const [DarkMode, setDarkMode] = useState(false);
-
-  function DarkModeSwitch() {
-    let BodyMode = document.querySelector(".Modes");
-    if (!DarkMode) {
-      BodyMode.classList.add("dark");
+  function darkModeSwitch() {
+    let bodyMode = document.querySelector(".Modes");
+    if (!darkMode) {
+      bodyMode.classList.add("dark");
       setDarkMode(true);
-      console.log(DarkMode);
     } else {
-      BodyMode.classList.remove("dark");
+      bodyMode.classList.remove("dark");
       setDarkMode(false);
-      console.log(DarkMode);
     }
   }
 
-  function NewTaskAdd(Event) {
-    setNewTask(Event.target.value);
+  function newTaskAdd(event) {
+    setNewTask(event.target.value);
   }
 
-  function AddTaskHandler() {
-    if (NewTask.trim() !== "") {
-      setTaskList((T) => [...T, NewTask]);
+  function addTaskHandler(category) {
+    if (newTask.trim() === "") return;
+    const newTaskWithCategory = { name: newTask, category };
+    setTaskList((prevTaskList) => [...prevTaskList, newTaskWithCategory]);
+    setNewTask("");
+    if (filterCategory === "" || filterCategory === category) {
+      setFilteredTaskList((prevFilteredTaskList) => [
+        ...prevFilteredTaskList,
+        newTaskWithCategory,
+      ]);
     }
   }
 
-  function DeleteTask(Element) {
-    const DeletedTaskList = TaskList.filter((e) => e !== Element);
-    setTaskList(DeletedTaskList);
+  function deleteTask(element) {
+    const updatedTaskList = taskList.filter((e) => e.name !== element.name);
+    setTaskList(updatedTaskList);
+    setFilteredTaskList(
+      updatedTaskList.filter(
+        (e) => e.category === filterCategory || filterCategory === ""
+      )
+    );
   }
 
-  function PriorityUp(index) {
+  function priorityUp(index) {
     if (index > 0) {
-      let UpdatedTaskList = [...TaskList];
-      let temp = UpdatedTaskList[index - 1];
-      UpdatedTaskList[index - 1] = UpdatedTaskList[index];
-      UpdatedTaskList[index] = temp;
-      setTaskList(UpdatedTaskList);
-      // console.log(UpdatedTaskList);
+      let updatedTaskList = [...taskList];
+      let temp = updatedTaskList[index - 1];
+      updatedTaskList[index - 1] = updatedTaskList[index];
+      updatedTaskList[index] = temp;
+      setTaskList(updatedTaskList);
+      setFilteredTaskList(
+        updatedTaskList.filter(
+          (e) => e.category === filterCategory || filterCategory === ""
+        )
+      );
     }
   }
 
-  function PriorityDown(index) {
-    if (index !== TaskList.length - 1) {
-      let UpdatedTaskList = [...TaskList];
-      let temp = UpdatedTaskList[index + 1];
-      UpdatedTaskList[index + 1] = UpdatedTaskList[index];
-      UpdatedTaskList[index] = temp;
-      setTaskList(UpdatedTaskList);
-      // console.log(UpdatedTaskList);
+  function priorityDown(index) {
+    if (index !== taskList.length - 1) {
+      let updatedTaskList = [...taskList];
+      let temp = updatedTaskList[index + 1];
+      updatedTaskList[index + 1] = updatedTaskList[index];
+      updatedTaskList[index] = temp;
+      setTaskList(updatedTaskList);
+      setFilteredTaskList(
+        updatedTaskList.filter(
+          (e) => e.category === filterCategory || filterCategory === ""
+        )
+      );
     }
   }
 
+  function filterHandler(e) {
+    const selectedCategory = e.target.value;
+    setFilterCategory(selectedCategory);
+    if (selectedCategory === "") {
+      setFilteredTaskList(taskList);
+    } else {
+      setFilteredTaskList(
+        taskList.filter((element) => element.category === selectedCategory)
+      );
+    }
+  }
 
-  const TaskListDisplay = TaskList.map((Element, index) => (
-    <>
-      <div className="full-task-card">
-        {/* this is the list generating */}
-        <a className="row padding">
-          <div className="max">
-            <li className="small">
-              <p key={index}>
-                <p>{Element}</p>
-              </p>
-            </li>
-          </div>
-          <nav className="no-space">
-            <button
-              className="border left-round"
-              onClick={() => DeleteTask(Element)}
-            >
-              <i>Delete</i>
-            </button>
-            <button
-              className="border no-round"
-              onClick={() => PriorityUp(index)}
-            >
-              <a>⬆</a>
-            </button>
-            <button
-              className="border right-round"
-              onClick={() => PriorityDown(index)}
-            >
-              <a>⬇</a>
-            </button>
-           
-          </nav>
-        </a>
+  const taskListDisplay = filteredTaskList.map((element, index) => (
+    <div className="full-task-card" key={index}>
+      <div className="row padding">
+        <div className="max">
+          <li className="small">
+            <h2>{element.name}</h2>
+            <p>{element.category}</p>
+          </li>
+        </div>
+        <nav className="no-space">
+          <button
+            className="border left-round"
+            onClick={() => deleteTask(element)}
+          >
+            <i>Delete</i>
+          </button>
+          <button className="border no-round" onClick={() => priorityUp(index)}>
+            <a>⬆</a>
+          </button>
+          <button
+            className="border right-round"
+            onClick={() => priorityDown(index)}
+          >
+            <a>⬇</a>
+          </button>
+        </nav>
       </div>
-    </>
+    </div>
   ));
 
   return (
-    <>
-      <main className="TodoListBox">
-        <div className="header">
-          <h1>TODO LIST</h1>
+    <main className="TodoListBox">
+      <div className="header">
+        <h1>TODO LIST</h1>
+        <label className="radio icon">
+          <input
+            type="checkbox"
+            name="radio3_"
+            value="dark"
+            onChange={darkModeSwitch}
+          />
+          <span>
+            <i>light_mode</i>
+            <i>dark_mode</i>
+          </span>
+          <p>Dark Mode</p>
+        </label>
+      </div>
 
-          <label className="radio icon">
-            <input
-              type="Checkbox"
-              name="radio3_"
-              value="dark"
-              onChange={DarkModeSwitch}
-            />
-            <span>
-              <i>light_mode</i>
-              <i>dark_mode</i>
-            </span>
-            <p>Dark Mode</p>
-          </label>
+      <div>
+        <div className="InputCss">
+          <input value={newTask} onChange={newTaskAdd} type="text" />
+          <button
+            className="extend square"
+            onClick={() => addTaskHandler("work")}
+          >
+            <i>Work</i>
+            <span>Add Work Task</span>
+          </button>
+          <button
+            className="extend circle right-round primary"
+            onClick={() => addTaskHandler("personal")}
+          >
+            <i>person</i>
+            <span>Add Personal Task</span>
+          </button>
         </div>
-
-        <div>
-          <div className="InputCss">
-            <input onChange={(Event) => NewTaskAdd(Event)} type="text" />
-            <button
-              className="extend circle right-round primary"
-              onClick={AddTaskHandler}
-            >
-              <i>add</i>
-              <span>Add Task</span>
-            </button>
-          </div>
+        <div className="field suffix border round">
+          <select onChange={filterHandler}>
+            <option value="">All</option>
+            <option value="work">Work</option>
+            <option value="personal">Personal</option>
+          </select>
+          <i>arrow_drop_down</i>
         </div>
+      </div>
 
-        <div className="ListDisplayer">{TaskListDisplay}</div>
-      </main>
-    </>
+      <div className="ListDisplayer">{taskListDisplay}</div>
+    </main>
   );
 }
 
